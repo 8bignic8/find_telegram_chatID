@@ -1,11 +1,44 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#Version 07 12 2021
+#Version 10 12 2021
 import json
 import os
 import requests
 import argparse
+
+def findLastChat(res):
+    i = 1
+    lastGroupID = 0
+    mID = 0
+    #print(res[2]['message']!= None)
+    #print((((res[0])['message'])))#['chat'])['id'])
+
+    try:
+        while((res[i-1])): #['message']['chat']['id']
+            #print(i)
+            try:
+                #print(res[i]['my_chat_member']['chat']['id'])
+                #print('')
+                mID = res[i]['my_chat_member']['chat']['id']
+                if ((int(mID))<0):
+                   lastGroupID = int(mID)
+                   # print(mID)
+            except:
+                pass
+            #print(res[i]['message'] != None)
+            #mID = (res[i])['message']['chat']['id']
+            #print(mID)
+            #print(res[i]['message'])
+
+            #print(res[i]['message'] != None)
+            i = i+1
+
+        #print('ext')
+    except:
+        pass
+    return lastGroupID
+
 
 def findID(token):
     print(token)
@@ -15,10 +48,14 @@ def findID(token):
             url='https://api.telegram.org/bot{0}/{1}'.format(token, method) #reqets the updates with the token
 
         ).json()
-        #print((response['result'][0]['message']['chat']))#['message'])['chat']))
-        chatID = ((((response['result'][0])['message'])['chat'])['id']) #searches in the dict for the chat message token
-        print('Your Chat ID is ' + str(chatID)) #shows it to the user
-        return chatID
+
+        numb = findLastChat(response['result']);
+        #print((response['result'][10]['message']))#['chat']['id']))#['message'])['chat']))
+
+        #chatID = ((((response['result'][0])['message'])['chat'])['id']) #searches in the dict for the chat message token
+        print('Your Chat ID is ' + str(numb)) #shows it to the user
+
+        return numb
     else:
         print('Not the right Token :/')
 
