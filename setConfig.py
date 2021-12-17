@@ -7,6 +7,7 @@ import os
 import requests
 import argparse
 
+json_config_path = "config.json"
 def findLastChat(res):
     i = 1
     lastGroupID = 0
@@ -84,8 +85,8 @@ config = {'myuserid': findID(token),
 
 
 ##Writing JSON with established dict
-try: 
-    with open('config.json', 'w', encoding='utf-8') as f: #writing config.json in utf-8
+try:
+    with open(json_config_path, 'w', encoding='utf-8') as f: #writing config.json in utf-8
         json.dump(config, f)
 except:
     print('config file write error')
