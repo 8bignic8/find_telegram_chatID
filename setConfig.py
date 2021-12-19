@@ -9,57 +9,27 @@ import argparse
 
 json_config_path = "config.json"
 def findLastChat(res):
-    i = 1
-    lastGroupID = 0
-    mID = 0
-    #print(res[2]['message']!= None)
-    #print((((res[0])['message'])))#['chat'])['id'])
-
     try:
-        while((res[i-1])): #['message']['chat']['id']
-            #print(i)
-            try:
-                #print(res[i]['my_chat_member']['chat']['id'])
-                #print('')
-                mID = res[i]['my_chat_member']['chat']['id']
-                if ((int(mID))<0):
-                   lastGroupID = int(mID)
-                   # print(mID)
-            except:
-                pass
-            #print(res[i]['message'] != None)
-            #mID = (res[i])['message']['chat']['id']
-            #print(mID)
-            #print(res[i]['message'])
+        i = 1
+        lastGroupID = 0
+        mID = 0
+        #print(res[2]['message']!= None)
+        #print((((res[0])['message'])))#['chat'])['id'])
+        res = res['result']
+        res = res[len(res)-1] # gets last message
 
-            #print(res[i]['message'] != None)
-            i = i+1
-
-        #print('ext')
+        res = res['message']
+        print('Send from: ' + res['from']['first_name'] +' '+ res['from']['last_name'])
+        print('In chat: ' + res['chat']['title'])
+        myid = res['chat']['id']
     except:
-        pass
-    return lastGroupID
+        print('Message was send Not in a valid Group Chat')
+
+    return myid
 
 
-def findID(token):
-    print(token)
-    if ':' in token: #checks if a valid Telegram token has been inputed
-        method = 'getUpdates' #sets the telegram request status
-        response = requests.post(
-            url='https://api.telegram.org/bot{0}/{1}'.format(token, method) #reqets the updates with the token
 
-        ).json()
-
-        numb = findLastChat(response['result']);
-        #print((response['result'][10]['message']))#['chat']['id']))#['message'])['chat']))
-
-        #chatID = ((((response['result'][0])['message'])['chat'])['id']) #searches in the dict for the chat message token
-        print('Your Chat ID is ' + str(numb)) #shows it to the user
-
-        return numb
-    else:
-        print('Not the right Token :/')
-
+#### Parser argument part
 try:
     parser = argparse.ArgumentParser(description='Input of the Telegram_Bot token')
     parser.add_argument('API_Bot_Token', metavar='T', type=str,
@@ -69,7 +39,6 @@ try:
         token = args.API_Bot_Token
     else:
         print('Error_parse')
-
 except:
     print('Fail to get argument [Token] switching to inputMode')
 
@@ -78,16 +47,40 @@ except:
     token = input('Set your BOT TOKEN e.g.: 213477740:ssf.......wfVg --> ') or 'ERR'
 
 
+
+#### HTTP Request Part
+print(str(token))
+if ':' in token: #checks if a valid Telegram token has been inputed
+    method = 'getUpdates' #sets the telegram request status
+    response = requests.post(
+        url='https://api.telegram.org/bot{0}/{1}'.format(token, method) #reqets the updates with the token
+    ).json()
+
+
+else:
+    print('Not the right Token :/')
+
+
+
 ####Setup config as dict
-config = {'myuserid': findID(token),
-        'token': token,
-         }
+try:
+    if(response['ok']):
+        numb = findLastChat(response)
+    else:
+        print('No response from the Bot')
+    config = {'myuserid': numb,
+            'token': token,
+             }
+except:
+    print('Error while getting the ID ')
+    print(response['result'][len(response['result'])-1])
 
 
 ##Writing JSON with established dict
 try:
     with open(json_config_path, 'w', encoding='utf-8') as f: #writing config.json in utf-8
         json.dump(config, f)
+    print('Chat ID is ' + str(numb) + ' saved to ==> config.json')
 except:
     print('config file write error')
 
